@@ -1,0 +1,12 @@
+{
+  "name": "sharebite",
+  "version": "1.0.0",
+  "description": "ShareBite - Food Rescue Platform Berbasis Microservices",
+  "scripts": {
+    "install:all": "npm install --prefix scripts && npm install --prefix backend/gateway && npm install --prefix backend/auth-service && npm install --prefix backend/donation-service && npm install --prefix backend/delivery-service && npm install --prefix backend/notification-service && npm install --prefix backend/reporting-service && npm install --prefix frontend",
+    "init:db": "node scripts/init-db.js",
+    "start": "node start-all.js",
+    "dev": "node start-all.js"
+  },
+  "engines": { "node": ">=22.5.0" }
+}
