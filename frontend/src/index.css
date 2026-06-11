@@ -4,30 +4,121 @@
 
 @layer base {
   * { box-sizing: border-box; }
-  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background-color: #FAFAF8; color: #1A0F05; }
-  h1,h2,h3,h4,h5,h6 { font-family: 'Nunito', system-ui, sans-serif; font-weight: 700; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+    font-weight: 400;
+    background-color: #FFFAF6;
+    color: #4A3622;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    color: #4A3622;
+  }
+  h1 { font-size: 2.5rem; font-weight: 700; }
+  h2 { font-size: 2rem; font-weight: 700; }
+  h3 { font-size: 1.5rem; font-weight: 600; }
 }
+
 @layer components {
-  .btn-primary { @apply bg-brand-primary text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-orange-700 active:scale-95 transition-all duration-150 shadow-warm hover:shadow-warm-lg disabled:opacity-50 disabled:cursor-not-allowed; }
-  .btn-secondary { @apply bg-white text-brand-primary font-semibold px-5 py-2.5 rounded-xl border-2 border-brand-primary hover:bg-brand-light active:scale-95 transition-all duration-150; }
-  .btn-ghost { @apply text-gray-600 font-medium px-4 py-2 rounded-xl hover:bg-gray-100 active:scale-95 transition-all duration-150; }
-  .card { @apply bg-white rounded-2xl shadow-card p-6 border border-gray-100; }
-  .input-field { @apply w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent placeholder-gray-400 text-gray-800 transition-all; }
-  .badge { @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold; }
-  .badge-available { @apply badge bg-green-100 text-green-700; }
-  .badge-claimed { @apply badge bg-blue-100 text-blue-700; }
-  .badge-picked_up { @apply badge bg-purple-100 text-purple-700; }
-  .badge-distributed { @apply badge bg-gray-100 text-gray-600; }
-  .badge-expired { @apply badge bg-red-100 text-red-600; }
-  .badge-assigned { @apply badge bg-yellow-100 text-yellow-700; }
-  .badge-on_the_way { @apply badge bg-blue-100 text-blue-700; }
-  .badge-cancelled { @apply badge bg-red-100 text-red-600; }
-  .sidebar-link { @apply flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-600 hover:bg-brand-light hover:text-brand-primary transition-all duration-150 cursor-pointer; }
-  .sidebar-link.active { @apply bg-brand-light text-brand-primary font-semibold; }
-  .stat-card { @apply card flex flex-col gap-2; }
+  /* ── Buttons ── */
+  .btn-primary {
+    @apply bg-brand-primary text-white font-semibold px-6 py-2.5 rounded-lg
+           hover:bg-brand-accent active:scale-95 transition-all duration-150
+           shadow-warm hover:shadow-warm-lg disabled:opacity-50 disabled:cursor-not-allowed;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    font-size: 0.95rem;
+  }
+  .btn-secondary {
+    @apply bg-white text-brand-primary font-semibold px-6 py-2.5 rounded-lg
+           border-2 border-brand-primary hover:bg-brand-light active:scale-95
+           transition-all duration-150;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    font-size: 0.95rem;
+  }
+  .btn-ghost {
+    @apply text-brand-muted font-medium px-4 py-2 rounded-lg
+           hover:bg-brand-warm active:scale-95 transition-all duration-150 text-sm;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* ── Cards ── */
+  .card {
+    @apply bg-white rounded-2xl shadow-card p-6 border border-brand-light;
+  }
+
+  /* ── Inputs ── */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg border border-brand-light bg-white
+           focus:outline-none focus:border-brand-primary
+           text-gray-800 transition-all text-sm;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  .input-field:focus {
+    box-shadow: 0 0 0 3px rgba(234,157,92,0.12);
+  }
+  .input-field::placeholder { color: #b8a898; }
+
+  /* ── Badges ── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-semibold;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+  .badge-available   { @apply badge bg-emerald-50 text-emerald-700 border border-emerald-200; }
+  .badge-claimed     { @apply badge bg-blue-50 text-blue-700 border border-blue-200; }
+  .badge-picked_up   { @apply badge bg-violet-50 text-violet-700 border border-violet-200; }
+  .badge-distributed { @apply badge bg-gray-100 text-gray-500 border border-gray-200; }
+  .badge-expired     { @apply badge bg-red-50 text-red-600 border border-red-200; }
+  .badge-assigned    { @apply badge bg-amber-50 text-amber-700 border border-amber-200; }
+  .badge-on_the_way  { @apply badge bg-sky-50 text-sky-700 border border-sky-200; }
+  .badge-cancelled   { @apply badge bg-red-50 text-red-600 border border-red-200; }
+
+  /* ── Sidebar nav links ── */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-brand-muted
+           hover:bg-brand-warm hover:text-brand-primary transition-all duration-150 cursor-pointer text-sm;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  .sidebar-link.active {
+    @apply bg-brand-primary text-white font-semibold;
+    box-shadow: 0 4px 16px rgba(234,157,92,0.25);
+  }
+
+  /* ── Stat card ── */
+  .stat-card { @apply card flex flex-col gap-3; }
+
+  /* ── Eyebrow label ── */
+  .section-eyebrow {
+    display: block;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: #EA9D5C;
+  }
 }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 99px; }
-::-webkit-scrollbar-thumb { background: #e8621a55; border-radius: 99px; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #FDF0E6; border-radius: 99px; }
+::-webkit-scrollbar-thumb { background: rgba(234,157,92,0.4); border-radius: 99px; }
+
+/* ── Notif pulse ── */
 .notif-dot { animation: notifPulse 1.5s ease-in-out infinite; }
-@keyframes notifPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(232,98,26,0.5); } 50% { box-shadow: 0 0 0 6px rgba(232,98,26,0); } }
+@keyframes notifPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(234,157,92,0.5); }
+  50%      { box-shadow: 0 0 0 6px rgba(234,157,92,0); }
+}

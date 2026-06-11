@@ -1,3 +1,4 @@
+import React from "react";
 const MAP = {
   available: { label: 'Tersedia', cls: 'badge-available' },
   claimed: { label: 'Diklaim', cls: 'badge-claimed' },
