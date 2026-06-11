@@ -210,11 +210,6 @@ Menampilkan seluruh notifikasi pengguna.
 ---
 
 ## ⚙️ Persyaratan
-- **Node.js v22.5 atau lebih baru** (Node v24 ✅)
-- Windows / macOS / Linux
-- **Tidak perlu Visual Studio, tidak perlu install SQLite** — menggunakan `node:sqlite` built-in Node.js
-
-## ⚙️ Persyaratan
 
 Pastikan perangkat Anda telah terinstall:
 
