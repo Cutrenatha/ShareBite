@@ -110,19 +110,69 @@ app.post('/', upload.single('food_image'), (req, res) => {
 // PUT /:id
 app.put('/:id', (req, res) => {
   const userRole = req.headers['x-user-role'];
-  const { food_name, quantity, pickup_location, description, status, expired_at } = req.body;
+  const { food_name, quantity, unit, pickup_location, description, status, expired_at } = req.body;
+
   try {
     if (userRole === 'donor') {
-      const donor = db.prepare('SELECT donor_id FROM donors WHERE user_id=?').get(req.headers['x-user-id']);
-      const existing = db.prepare('SELECT * FROM donations WHERE donation_id=? AND donor_id=?').get(req.params.id, donor?.donor_id);
-      if (!existing) return res.status(403).json({ error: 'Tidak diizinkan' });
-      db.prepare('UPDATE donations SET food_name=COALESCE(?,food_name),quantity=COALESCE(?,quantity),pickup_location=COALESCE(?,pickup_location),description=COALESCE(?,description),status=COALESCE(?,status),expired_at=COALESCE(?,expired_at),updated_at=datetime(\'now\') WHERE donation_id=?')
-        .run(food_name, quantity ? parseInt(quantity) : null, pickup_location, description, status, expired_at, req.params.id);
+      const donor = db
+        .prepare('SELECT donor_id FROM donors WHERE user_id=?')
+        .get(req.headers['x-user-id']);
+
+      if (!donor) {
+        return res.status(404).json({ error: 'Profil donor tidak ditemukan' });
+      }
+
+      const existing = db
+        .prepare('SELECT * FROM donations WHERE donation_id=? AND donor_id=?')
+        .get(req.params.id, donor.donor_id);
+
+      if (!existing) {
+        return res.status(403).json({ error: 'Tidak diizinkan' });
+      }
+
+      db.prepare(`
+        UPDATE donations
+        SET food_name = COALESCE(?, food_name),
+            quantity = COALESCE(?, quantity),
+            unit = COALESCE(?, unit),
+            pickup_location = COALESCE(?, pickup_location),
+            description = COALESCE(?, description),
+            status = COALESCE(?, status),
+            expired_at = COALESCE(?, expired_at)
+        WHERE donation_id = ?
+      `).run(
+        food_name || null,
+        quantity ? parseInt(quantity) : null,
+        unit || null,
+        pickup_location || null,
+        description ?? null,
+        status || null,
+        expired_at || null,
+        req.params.id
+      );
     } else {
-      db.prepare("UPDATE donations SET status=?,updated_at=datetime('now') WHERE donation_id=?").run(status, req.params.id);
+      db.prepare(`
+        UPDATE donations
+        SET status = ?
+        WHERE donation_id = ?
+      `).run(status, req.params.id);
     }
-    res.json({ message: 'Donasi diperbarui' });
-  } catch (err) { res.status(500).json({ error: 'Gagal update' }); }
+
+    const updated = db
+      .prepare('SELECT * FROM donations WHERE donation_id=?')
+      .get(req.params.id);
+
+    res.json({
+      message: 'Donasi diperbarui',
+      donation: updated,
+    });
+  } catch (err) {
+    console.error('UPDATE DONATION ERROR:', err);
+    res.status(500).json({
+      error: 'Gagal update',
+      detail: err.message,
+    });
+  }
 });
 
 // DELETE /:id

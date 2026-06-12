@@ -348,7 +348,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="flex flex-col items-end gap-1">
-                    <StatusBadge status={item.status} />
+                    <StatusBadge status={item.display_status || item.status} />
                     <p className="text-[10px] text-[#7A5C46] whitespace-nowrap">
                       {formatDistanceToNow(new Date(item.created_at), {
                         addSuffix: true,

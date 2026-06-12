@@ -221,7 +221,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-12 flex items-center justify-center gap-2 mt-2 rounded-2xl font-bold text-white transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
+                  className="w-full h-12 flex items-center justify-center gap-2 mt-10 rounded-2xl font-bold text-white transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
                   style={{
                     background: primary,
                     boxShadow: "0 14px 28px rgba(233,125,50,0.25)",
@@ -242,24 +242,6 @@ export default function LoginPage() {
                   )}
                 </button>
               </form>
-
-              <div className="mt-6 p-4 rounded-3xl bg-orange-50 border border-orange-200">
-                <p className="text-xs font-extrabold text-[#8A5A36] mb-3 uppercase tracking-[0.12em]">
-                  Akun Demo
-                </p>
-
-                <div className="space-y-2 text-xs text-[#7A5C46]">
-                  <div className="flex items-center gap-2">
-                    <Store size={14} style={{ color: primary }} />
-                    <span>padang@example.com / password123</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Users size={14} style={{ color: primary }} />
-                    <span>ahmad@example.com / password123</span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

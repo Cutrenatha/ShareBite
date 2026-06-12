@@ -74,7 +74,19 @@ export default function DonationFormPage() {
 
     try {
       if (isEdit) {
-        await api.put(`/donations/${id}`, form);
+        const payload = {
+          food_name: form.food_name,
+          quantity: Number(form.quantity),
+          unit: form.unit,
+          pickup_location: form.pickup_location,
+          description: form.description,
+          expired_at: new Date(form.expired_at).toISOString(),
+        };
+
+        console.log("UPDATE PAYLOAD:", payload);
+
+        await api.put(`/donations/${id}`, payload);
+
         toast.success("Donasi diperbarui! ✅");
       } else {
         const formData = new FormData();
@@ -83,10 +95,14 @@ export default function DonationFormPage() {
           formData.append(k, v);
         });
 
-        if (file) formData.append("food_image", file);
+        if (file) {
+          formData.append("food_image", file);
+        }
 
         await api.post("/donations", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         });
 
         toast.success("Donasi berhasil dibuat!");
@@ -94,7 +110,14 @@ export default function DonationFormPage() {
 
       navigate("/donations");
     } catch (err) {
-      toast.error(err.response?.data?.error || "Gagal menyimpan");
+      console.error("FULL ERROR:", err);
+      console.error("ERROR RESPONSE:", err.response?.data);
+
+      toast.error(
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Gagal menyimpan"
+      );
     } finally {
       setLoading(false);
     }

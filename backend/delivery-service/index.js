@@ -96,7 +96,11 @@ app.put('/status/:pickupId', (req, res) => {
     if (status === 'distributed') {
       db.prepare('INSERT INTO delivery_reports (report_id,pickup_id,volunteer_id,donor_id,food_name,recipient_count,notes) VALUES (?,?,?,?,?,?,?)')
         .run(uuidv4(), req.params.pickupId, vol.volunteer_id, pickup.donor_id, pickup.food_name, parseInt(recipientCount) || 0, notes || '');
-      db.prepare('UPDATE volunteers SET total_deliveries=total_deliveries+1 WHERE volunteer_id=?').run(vol.volunteer_id);
+      db.prepare(`
+        UPDATE volunteers 
+        SET total_deliveries = COALESCE(total_deliveries, 0) + 1 
+        WHERE volunteer_id = ?
+      `).run(vol.volunteer_id);
       // Notify donor
       const donorUser = db.prepare('SELECT u.user_id FROM donors d JOIN users u ON d.user_id=u.user_id WHERE d.donor_id=?').get(pickup.donor_id);
       if (donorUser) notifyUser(donorUser.user_id, `Donasi "${pickup.food_name}" telah berhasil didistribusikan! 🎉`, 'distributed', req.params.pickupId);

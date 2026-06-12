@@ -37,6 +37,7 @@ export default function DonationsPage() {
   const statusOptions = [
     { value: "", label: "Semua Status" },
     { value: "available", label: "Tersedia" },
+    { value: "expired", label: "Kadaluarsa" },
     { value: "claimed", label: "Diklaim" },
     { value: "picked_up", label: "Dijemput" },
     { value: "distributed", label: "Terdistribusi" },
@@ -50,7 +51,7 @@ export default function DonationsPage() {
     setLoading(true);
 
     api
-      .get(`/donations${filter ? `?status=${filter}` : ""}`)
+      .get("/donations")
       .then((r) => setDonations(r.data.donations))
       .catch(() => toast.error("Gagal memuat donasi"))
       .finally(() => setLoading(false));
@@ -86,12 +87,27 @@ export default function DonationsPage() {
     }
   };
 
-  const filtered = donations.filter(
-    (d) =>
+  const getDisplayStatus = (d) => {
+    const expired = isPast(new Date(d.expired_at));
+
+    if (d.status === "available" && expired) {
+      return "expired";
+    }
+
+    return d.status;
+  };
+
+  const filtered = donations.filter((d) => {
+    const keyword =
       d.food_name?.toLowerCase().includes(search.toLowerCase()) ||
       d.pickup_location?.toLowerCase().includes(search.toLowerCase()) ||
-      d.restaurant_name?.toLowerCase().includes(search.toLowerCase())
-  );
+      d.restaurant_name?.toLowerCase().includes(search.toLowerCase());
+
+    const displayStatus = getDisplayStatus(d);
+    const statusMatch = filter ? displayStatus === filter : true;
+
+    return keyword && statusMatch;
+  });
 
   return (
     <div className="space-y-5 animate-slide-up">
@@ -251,6 +267,7 @@ export default function DonationsPage() {
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.map((d) => {
             const expired = isPast(new Date(d.expired_at));
+            const displayStatus = getDisplayStatus(d);
 
             return (
               <div
@@ -272,7 +289,7 @@ export default function DonationsPage() {
                   )}
 
                   <div className="absolute top-3 right-3">
-                    <StatusBadge status={d.status} />
+                    <StatusBadge status={displayStatus} />
                   </div>
                 </div>
 
@@ -328,7 +345,7 @@ export default function DonationsPage() {
                 <div className="mt-5 pt-4 border-t border-orange-100 flex gap-3 flex-wrap">
                   {isDonor ? (
                     <>
-                      {d.status === "available" && (
+                      {displayStatus === "available" && (
                         <Link
                           to={`/donations/edit/${d.donation_id}`}
                           className="h-10 px-4 rounded-2xl border border-orange-200 bg-white text-[#7A5C46] font-bold hover:bg-[#FFF4EC] hover:border-[#E58A43] transition-all flex items-center gap-2 text-sm"

@@ -40,22 +40,72 @@ app.get('/dashboard', (req, res) => {
       const donor = db.prepare('SELECT donor_id FROM donors WHERE user_id=?').get(userId);
       const did = donor?.donor_id || 'none';
       const total_donations = db.prepare('SELECT COUNT(*) as c FROM donations WHERE donor_id=?').get(did).c;
-      const active_donations = db.prepare("SELECT COUNT(*) as c FROM donations WHERE donor_id=? AND status='available'").get(did).c;
+      const active_donations = db.prepare(`SELECT COUNT(*) as c FROM donations WHERE donor_id = ? AND status = 'available' AND datetime(expired_at) > datetime('now')`).get(did).c;
       const completed_donations = db.prepare("SELECT COUNT(*) as c FROM donations WHERE donor_id=? AND status='distributed'").get(did).c;
       const total_recipients = db.prepare('SELECT COALESCE(SUM(recipient_count),0) as s FROM delivery_reports WHERE donor_id=?').get(did).s;
       const total_portions_donated = db.prepare("SELECT COALESCE(SUM(quantity),0) as s FROM donations WHERE donor_id=? AND status='distributed'").get(did).s;
       const monthly = db.prepare("SELECT strftime('%Y-%m',created_at) as month, COUNT(*) as count FROM donations WHERE donor_id=? GROUP BY month ORDER BY month DESC LIMIT 6").all(did);
-      const recent = db.prepare('SELECT * FROM donations WHERE donor_id=? ORDER BY created_at DESC LIMIT 5').all(did);
+      const recent = db
+        .prepare(`
+          SELECT *,
+            CASE
+              WHEN status = 'available' AND datetime(expired_at) <= datetime('now')
+              THEN 'expired'
+              ELSE status
+            END AS display_status
+          FROM donations
+          WHERE donor_id = ?
+          ORDER BY created_at DESC
+          LIMIT 5
+        `)
+        .all(did);
       res.json({ stats: { total_donations, active_donations, completed_donations, total_recipients, total_portions_donated }, monthly, recent });
     } else {
       const vol = db.prepare('SELECT volunteer_id,total_deliveries FROM volunteers WHERE user_id=?').get(userId);
       const vid = vol?.volunteer_id || 'none';
-      const total_pickups = db.prepare('SELECT COUNT(*) as c FROM pickups WHERE volunteer_id=?').get(vid).c;
-      const completed_pickups = db.prepare("SELECT COUNT(*) as c FROM pickups WHERE volunteer_id=? AND status='distributed'").get(vid).c;
-      const active_pickups = db.prepare("SELECT COUNT(*) as c FROM pickups WHERE volunteer_id=? AND status IN ('assigned','on_the_way','picked_up')").get(vid).c;
-      const total_recipients_helped = db.prepare('SELECT COALESCE(SUM(recipient_count),0) as s FROM delivery_reports WHERE volunteer_id=?').get(vid).s;
-      const monthly = db.prepare("SELECT strftime('%Y-%m',created_at) as month, COUNT(*) as count FROM pickups WHERE volunteer_id=? GROUP BY month ORDER BY month DESC LIMIT 6").all(vid);
-      const recent = db.prepare('SELECT p.*,d.food_name,d.pickup_location,dn.restaurant_name FROM pickups p JOIN donations d ON p.donation_id=d.donation_id JOIN donors dn ON d.donor_id=dn.donor_id WHERE p.volunteer_id=? ORDER BY p.created_at DESC LIMIT 5').all(vid);
+      const total_pickups = db
+        .prepare(`
+          SELECT COUNT(*) as c
+          FROM pickups
+          WHERE volunteer_id = ?
+            AND status != 'cancelled'
+        `)
+        .get(vid).c;
+
+      const completed_pickups = db
+        .prepare("SELECT COUNT(*) as c FROM pickups WHERE volunteer_id=? AND status='distributed'")
+        .get(vid).c;
+
+      const active_pickups = db
+        .prepare("SELECT COUNT(*) as c FROM pickups WHERE volunteer_id=? AND status IN ('assigned','on_the_way','picked_up')")
+        .get(vid).c;
+
+      const total_recipients_helped = db
+        .prepare('SELECT COALESCE(SUM(recipient_count),0) as s FROM delivery_reports WHERE volunteer_id=?')
+        .get(vid).s;
+
+      const recent = db
+        .prepare(`
+          SELECT p.*, d.food_name, d.pickup_location, dn.restaurant_name
+          FROM pickups p
+          JOIN donations d ON p.donation_id = d.donation_id
+          JOIN donors dn ON d.donor_id = dn.donor_id
+          WHERE p.volunteer_id = ?
+          ORDER BY p.created_at DESC
+          LIMIT 5
+        `)
+        .all(vid);
+        const monthly = db
+          .prepare(`
+            SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count
+            FROM pickups
+            WHERE volunteer_id = ?
+              AND status != 'cancelled'
+            GROUP BY month
+            ORDER BY month DESC
+            LIMIT 6
+          `)
+          .all(vid);
       res.json({ stats: { total_pickups, completed_pickups, active_pickups, total_recipients_helped }, monthly, recent, total_deliveries: vol?.total_deliveries || 0 });
     }
   } catch (err) {
