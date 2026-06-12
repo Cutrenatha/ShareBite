@@ -8,5 +8,10 @@
     "start": "node start-all.js",
     "dev": "node start-all.js"
   },
-  "engines": { "node": ">=22.5.0" }
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3"
+  }
 }
